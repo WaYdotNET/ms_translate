@@ -29,8 +29,9 @@ TODO: Write usage instructions here
 5. Create new Pull Request
 
 
-
 ## Author
+
+[![endorse](http://api.coderwall.com/waydotnet/endorsecount.png)](http://coderwall.com/waydotnet)
 
 WaYdotNET, you can follow me on twitter [@WaYdotNET](http://twitter.com/WaYdotNET) or take a look at my site [waydotnet.com](http://www.waydotnet.com)
 
