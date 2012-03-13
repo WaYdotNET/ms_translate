@@ -1,4 +1,3 @@
-# -*- encoding: utf-8 -*-
 require File.expand_path('../lib/ms_translate/version', __FILE__)
 
 Gem::Specification.new do |gem|
@@ -9,6 +8,11 @@ Gem::Specification.new do |gem|
   gem.homepage      = "http://www.waydotnet.com"
 
   gem.add_dependency('httparty')
+
+  gem.add_development_dependency 'webmock'
+  gem.add_development_dependency 'vcr'
+  gem.add_development_dependency 'turn'
+  gem.add_development_dependency 'rake'
 
 
   gem.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }

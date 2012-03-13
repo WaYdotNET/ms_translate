@@ -1,6 +1,11 @@
 # MsTranslate
+The library is a simple API in Ruby for Microsoft Translator V2
 
-TODO: Write a gem description
+The Microsoft Translator services can be used in web or client
+applications to perform language translation operations. The services
+support users who are not familiar with the default language of a page
+or application, or those desiring to communicate with people of a
+different language group.
 
 ## Installation
 
@@ -18,7 +23,26 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+first step set your appId
+
+    $ MsTranslate::Api.appId = 'MyRealAppId'
+
+traNslate method:
+
+    $ MsTranslate::Api.translate('Hello World!)
+    $ => Ciao, Mondo!
+
+## Method not implemented
+
+1. Microsoft.Translator.AddTranslation Method
+2. Microsoft.Translator.AddTranslationArray Method
+
+## Test
+
+You need to insert your appId into
+
+    # File 'spec/lib/ms_translate/api_spec.rb'
+    @api_real =  'INSERT_YOUR_APPID'
 
 ## Contributing
 
