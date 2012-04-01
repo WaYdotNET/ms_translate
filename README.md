@@ -23,9 +23,13 @@ Or install it yourself as:
 
 ## Usage
 
-first step set your appId
-
-    $ MsTranslate::Api.appId = 'MyRealAppId'
+From now on Microsoft's translators work with the OAuth protocol
+first step set your client_secret and client_id
+You can get your passwords following the instructions that appear on this link
+http://msdn.microsoft.com/en-us/library/hh454950.aspx
+    
+    $ MsTranslate::Api.client_secret = 'MyRealClientSecret'
+    $ MsTranslate::Api.client_id = 'MyRealClientID'
 
 traNslate method:
 
