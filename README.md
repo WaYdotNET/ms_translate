@@ -29,7 +29,7 @@ first step set your appId
 
 traNslate method:
 
-    $ MsTranslate::Api.translate('Hello World!)
+    $ MsTranslate::Api.translate('Hello World!')
     $ => Ciao, Mondo!
 
 ## Method not implemented
