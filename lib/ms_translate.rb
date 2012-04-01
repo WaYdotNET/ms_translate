@@ -359,25 +359,21 @@ module MsTranslate
     def self.wrapper(method, query = {})        
       query[:appId]  = MsTranslate::Api.appId
 
-      @token_expired = true
-
-      while @token_expired
-        @access_token ||= MicroOauth.get_token({:client_id => MsTranslate::Api.client_id, :client_secret => MsTranslate::Api.client_secret}) 
-        @token_expired = false
-        # check if you wan V1
-        base_uri.gsub!('V2', 'V1') if query.delete(:v1)        
-        valid_language?( query[:from], query[:to] ) unless query[:from].nil? || query[:to].nil?
-        
-        headers = {'Content-type' => 'text/plain', "Authorization" => @access_token}  
-        
+      @access_token ||= MicroOauth.get_token({:client_id => MsTranslate::Api.client_id, :client_secret => MsTranslate::Api.client_secret}) 
+      # check if you wan V1
+      base_uri.gsub!('V2', 'V1') if query.delete(:v1)        
+      valid_language?( query[:from], query[:to] ) unless query[:from].nil? || query[:to].nil?
+      
+      headers = {'Content-type' => 'text/plain', "Authorization" => @access_token}  
+      
+      response = get(method, :query => query, :headers => headers)
+      
+      if response.code==400 and response.parsed_response["token has expired"] 
+        @access_token = nil          
+        @access_token = MicroOauth.get_token({:client_id => MsTranslate::Api.client_id, :client_secret => MsTranslate::Api.client_secret})             
         response = get(method, :query => query, :headers => headers)
-        base_uri.gsub!('V1', 'V2')  
-        
-        if response.code==400 and response.parsed_response["token has expired"] 
-            @access_token = nil          
-            @token_expired==true
-        end
       end
+      base_uri.gsub!('V1', 'V2')  
 
       case response.code
       when 200
