@@ -42,8 +42,13 @@ traNslate method:
 You need to insert your appId into
 
     # File 'spec/lib/ms_translate/api_spec.rb'
-    @api_real =  'INSERT_YOUR_APPID'
-
+    @api_real =  '' Leave Blank
+    @client_secret_real =  'INSERT_YOUR_SECRET_KEY'
+    @client_id_real = 'INSERT_YOUR_CLIENT_ID'
+    # File 'spec/lib/ms_translate/micro_oauth_spec.rb'
+    @api_real =  '' Leave Blank
+    @client_secret_real =  'INSERT_YOUR_SECRET_KEY'
+    @client_id_real = 'INSERT_YOUR_CLIENT_ID'
 ## Contributing
 
 1. Fork it
