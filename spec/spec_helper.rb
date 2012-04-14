@@ -2,6 +2,7 @@
 # require_relative '../lib/ms_translate'
 # For Ruby < 1.9.3, use this instead of require_relative
 require(File.expand_path('../../lib/ms_translate', __FILE__))
+require(File.expand_path('../../lib/ms_translate/micro_oauth', __FILE__))
 
 #dependencies
 require 'minitest/autorun'

@@ -1,6 +1,8 @@
 require 'rubygems' unless defined?(Gem)
 require 'httparty'
-require 'ms_translate/version'
+# require 'ms_translate/version'
+require 'ms_translate/micro_oauth'
+
 
 ##
 # Wrapper for Microsoft Translator V2
@@ -15,15 +17,15 @@ module MsTranslate
   #
   # see
   # http://yehudakatz.com/2010/11/30/ruby-2-0-refinements-in-practice/
-  #
-  class ::String
-    ##
-    # camlize method
-    #
-    def camelize()
-      self.dup.split(/_/).map{ |word| word.capitalize }.join('')
-    end
-  end
+  # In Rails 3 with gem [tolk] installed have a load problem
+  # class ::String
+  #   ##
+  #   # camlize method
+  #   #
+  #   def camelize()
+  #     self.dup.split(/_/).map{ |word| word.capitalize }.join('')
+  #   end
+  # end     
 
   ##
   #  Wrapper for Microsoft Translator V2
@@ -42,11 +44,17 @@ module MsTranslate
   class Api
     include HTTParty
     base_uri 'http://api.microsofttranslator.com/V2/Http.svc//'
-    FROM, TO = :en, :it
+    FROM, TO = :en, :it     
+    APPID = '' # Now, with Oauth this isn't 
 
     class << self
       # The AppId to work with Microsoft Translator
       attr_accessor :appId
+      
+      # The clientId to work with Microsoft Translator Since you have to register in Microsoft Market (Azureus)
+      # http://msdn.microsoft.com/en-us/library/hh454950.aspx
+      attr_accessor :client_id
+      attr_accessor :client_secret
 
       # The language code to translate the text from
       attr_accessor :from
@@ -54,7 +62,8 @@ module MsTranslate
       # The language code to translate the text into.
       attr_accessor :to
 
-      # init val
+      # init val           
+      MsTranslate::Api.appId ||= APPID
       MsTranslate::Api.from ||= FROM
       MsTranslate::Api.to   ||= TO
       available_langauge    ||= nil
@@ -71,6 +80,7 @@ module MsTranslate
     # Generic ArgumentException
     #
     class ArgumentException < StandardError; end
+    class TokenExpired < StandardError; end
 
     # Generic ArgumentException
     #
@@ -96,12 +106,11 @@ module MsTranslate
     # @return [String]
     #  the translated text
     #
-    def self.translate(text, query = {})
+    def self.translate(text, query = {})                 
       query[:from]   = @from  if query[:from].nil?
       query[:to]     = @to    if query[:to].nil?
       query[:text]   = text
-
-      wrapper( __method__.to_s.camelize,  query)['string']
+      wrapper( transform_in_api_method(__method__),  query)['string']
     end
 
     ##
@@ -120,7 +129,7 @@ module MsTranslate
     #  two-character Language code for the given text
     #
     def self.detect(text)
-      wrapper( __method__.to_s.camelize, { :text => text })['string']
+      wrapper( transform_in_api_method(__method__), { :text => text })['string']
     end
 
     ##
@@ -141,7 +150,7 @@ module MsTranslate
     #  two-character Language codes for each row of the input array
     #
     def self.detect_array(texts)
-      wrapper( __method__.to_s.camelize, { :text => texts })
+      wrapper( transform_in_api_method(__method__), { :text => texts })
     end
 
     ##
@@ -162,7 +171,7 @@ module MsTranslate
     #   into the requested language
     #
     def self.get_language_names(locale, v1 = false)
-      wrapper( __method__.to_s.camelize, { :locale => locale.to_s, :v1 => v1 })
+      wrapper( transform_in_api_method(__method__), { :locale => locale.to_s, :v1 => v1 })
     end
 
     ##
@@ -178,7 +187,7 @@ module MsTranslate
     # Translator Service
     #
     def self.get_languages_for_speak
-      wrapper( __method__.to_s.camelize )['ArrayOfstring']['string']
+      wrapper( transform_in_api_method(__method__) )['ArrayOfstring']['string']
     end
 
     ##
@@ -196,7 +205,7 @@ module MsTranslate
     #  The language codes supported by the Translator Services
     #
     def self.get_languages_for_translate
-      @available_language ||=  wrapper( __method__.to_s.camelize )['ArrayOfstring']['string']
+      @available_language ||=  wrapper( transform_in_api_method(__method__) )['ArrayOfstring']['string']
     end
 
     ##
@@ -223,7 +232,7 @@ module MsTranslate
     #
     #
     def self.get_translations(text, max_translations)
-      wrapper( __method__.to_s.camelize, {:max_translations => max_translations, :text => text})
+      wrapper( transform_in_api_method(__method__), {:max_translations => max_translations, :text => text})
     end
 
     ##
@@ -252,7 +261,7 @@ module MsTranslate
     # Returns a GetTranslationsResponse array
     #
     def self.get_translations_array(texts, max_translations)
-      wrapper( __method__.to_s.camelize, {:max_translations => max_translations, :texts => texts})
+      wrapper( transform_in_api_method(__method__), {:max_translations => max_translations, :texts => texts})
     end
 
     ##
@@ -270,7 +279,7 @@ module MsTranslate
     #  The supported language code to speak the text in. (see get_languages_for_speak)
     #
     def self.speak(text, language)
-      wrapper( __method__.to_s.camelize, {:text => text, :language => language})
+      wrapper(transform_in_api_method(__method__), {:text => text, :language => language})
     end
 
     ##
@@ -295,7 +304,7 @@ module MsTranslate
     # @return [Array]
     #   Returns a TranslateArrayResponse array
     def self.translate_array(texts)
-      wrapper( __method__.to_s.camelize, {:texts => texts})
+      wrapper( transform_in_api_method(__method__), {:texts => texts})
     end
 
     ##
@@ -319,7 +328,7 @@ module MsTranslate
     #  and the values are the length of each sentence.
     #
     def self.break_sentences(text, language)
-      wrapper( __method__.to_s.camelize, {:text => text, :language => language})['ArrayOfint']['int']
+      wrapper( transform_in_api_method(__method__), {:text => text, :language => language})['ArrayOfint']['int']
     end
 
     ##
@@ -328,7 +337,9 @@ module MsTranslate
     def self.reset!
       @from  = FROM
       @to    = TO
-      @appId = nil
+      @appId = nil              
+      @client_id = nil
+      @client_secret = nil
       @available_language = nil
     end
 
@@ -345,16 +356,26 @@ module MsTranslate
     #
     #
     # @api private
-    def self.wrapper(method, query = {})
+    def self.wrapper(method, query = {})        
+      query[:appId]  = MsTranslate::Api.appId
 
-      query[:appId]  = @appId if query[:appId].nil?
-      raise InvalidAppId      if query[:appId].nil? || query[:appId].length < 16
+      @access_token ||= MsTranslate::MicroOauth.get_token({:client_id => MsTranslate::Api.client_id, :client_secret => MsTranslate::Api.client_secret}) 
       # check if you wan V1
-      base_uri.gsub!('V2', 'V1') if query.delete(:v1)
+      base_uri.gsub!('V2', 'V1') if query.delete(:v1)        
       valid_language?( query[:from], query[:to] ) unless query[:from].nil? || query[:to].nil?
+      
+      headers = {'Content-type' => 'text/plain', "Authorization" => @access_token}  
+      
+      response = get(method, :query => query, :headers => headers)
 
-      response = get(method, :query => query)
-      base_uri.gsub!('V1', 'V2')
+      if response.code==400 and response.parsed_response["token has expired"] 
+        @access_token = nil          
+        @access_token = MsTranslate::MicroOauth.get_token({:client_id => MsTranslate::Api.client_id, :client_secret => MsTranslate::Api.client_secret})             
+        headers = {'Content-type' => 'text/plain', "Authorization" => @access_token}  
+        response = get(method, :query => query, :headers => headers)
+      end
+      base_uri.gsub!('V1', 'V2')  
+
       case response.code
       when 200
         response
@@ -364,9 +385,25 @@ module MsTranslate
         raise HTTPMethodNotAllowed
       when 500...600
         raise ServiceError, "ZOMG ERROR #{response.code}"
-      when 400
+      when 400                                
         raise ArgumentException
       end
+    end
+
+    ##
+    # TransformInApiMethod Method
+    #
+    # Transform methods in MS Translate API methods
+    #
+    # @param [object] method
+    #  The method to transform
+    #
+    # @return [String]
+    #   This pass to HTTParty with base_uri
+    #
+    # @api private
+    def self.transform_in_api_method(method)
+      method.to_s.dup.split(/_/).map{ |word| word.capitalize }.join('')
     end
 
     ##
@@ -386,6 +423,7 @@ module MsTranslate
     end
 
 
+    private_class_method :transform_in_api_method
     private_class_method :valid_language?
     private_class_method :wrapper
 

@@ -23,13 +23,17 @@ Or install it yourself as:
 
 ## Usage
 
-first step set your appId
-
-    $ MsTranslate::Api.appId = 'MyRealAppId'
+From now on Microsoft's translators work with the OAuth protocol
+first step set your client_secret and client_id
+You can get your passwords following the instructions that appear on this link
+http://msdn.microsoft.com/en-us/library/hh454950.aspx
+    
+    $ MsTranslate::Api.client_secret = 'MyRealClientSecret'
+    $ MsTranslate::Api.client_id = 'MyRealClientID'
 
 traNslate method:
 
-    $ MsTranslate::Api.translate('Hello World!)
+    $ MsTranslate::Api.translate('Hello World!')
     $ => Ciao, Mondo!
 
 ## Method not implemented
@@ -42,8 +46,13 @@ traNslate method:
 You need to insert your appId into
 
     # File 'spec/lib/ms_translate/api_spec.rb'
-    @api_real =  'INSERT_YOUR_APPID'
-
+    @api_real =  '' Leave Blank
+    @client_secret_real =  'INSERT_YOUR_SECRET_KEY'
+    @client_id_real = 'INSERT_YOUR_CLIENT_ID'
+    # File 'spec/lib/ms_translate/micro_oauth_spec.rb'
+    @api_real =  '' Leave Blank
+    @client_secret_real =  'INSERT_YOUR_SECRET_KEY'
+    @client_id_real = 'INSERT_YOUR_CLIENT_ID'
 ## Contributing
 
 1. Fork it
