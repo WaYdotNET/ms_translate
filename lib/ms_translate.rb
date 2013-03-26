@@ -1,5 +1,7 @@
 require 'rubygems' unless defined?(Gem)
 require 'httparty'
+require 'active_support/inflector/methods'
+require 'active_support/inflector/inflections'
 require 'ms_translate/version'
 
 ##
@@ -7,24 +9,28 @@ require 'ms_translate/version'
 #
 # @author Carlo Bertini
 #
-module MsTranslate
+class String
   ##
-  # monkey patch to covert method name to camelize
+  # By default, +camelize+ converts strings to UpperCamelCase. If the argument to camelize
+  # is set to <tt>:lower</tt> then camelize produces lowerCamelCase.
   #
-  # @author Yehuda Katz
+  # +camelize+ will also convert '/' to '::' which is useful for converting paths to namespaces.
   #
-  # see
-  # http://yehudakatz.com/2010/11/30/ruby-2-0-refinements-in-practice/
+  #   "active_record".camelize                # => "ActiveRecord"
+  #   "active_record".camelize(:lower)        # => "activeRecord"
+  #   "active_record/errors".camelize         # => "ActiveRecord::Errors"
+  #   "active_record/errors".camelize(:lower) # => "activeRecord::Errors"
   #
-  class ::String
-    ##
-    # camlize method
-    #
-    def camelize()
-      self.dup.split(/_/).map{ |word| word.capitalize }.join('')
+  def camelize(first_letter = :upper)
+    case first_letter
+    when :upper then ActiveSupport::Inflector.camelize(self, true)
+    when :lower then ActiveSupport::Inflector.camelize(self, false)
     end
   end
+  alias_method :camelcase, :camelize
+end
 
+module MsTranslate
   ##
   #  Wrapper for Microsoft Translator V2
   #
@@ -141,7 +147,7 @@ module MsTranslate
     #  two-character Language codes for each row of the input array
     #
     def self.detect_array(texts)
-      wrapper( __method__.to_s.camelize, { :text => texts })
+      raise MsTranslate::Api::HTTPMethodNotAllowed
     end
 
     ##
@@ -162,7 +168,8 @@ module MsTranslate
     #   into the requested language
     #
     def self.get_language_names(locale, v1 = false)
-      wrapper( __method__.to_s.camelize, { :locale => locale.to_s, :v1 => v1 })
+      raise MsTranslate::Api::HTTPMethodNotAllowed
+      # wrapper( __method__.to_s.camelize, { :locale => locale.to_s, :v1 => v1 })
     end
 
     ##
@@ -223,7 +230,7 @@ module MsTranslate
     #
     #
     def self.get_translations(text, max_translations)
-      wrapper( __method__.to_s.camelize, {:max_translations => max_translations, :text => text})
+      raise MsTranslate::Api::HTTPMethodNotAllowed
     end
 
     ##
@@ -252,7 +259,7 @@ module MsTranslate
     # Returns a GetTranslationsResponse array
     #
     def self.get_translations_array(texts, max_translations)
-      wrapper( __method__.to_s.camelize, {:max_translations => max_translations, :texts => texts})
+      raise MsTranslate::Api::HTTPMethodNotAllowed
     end
 
     ##
@@ -295,7 +302,7 @@ module MsTranslate
     # @return [Array]
     #   Returns a TranslateArrayResponse array
     def self.translate_array(texts)
-      wrapper( __method__.to_s.camelize, {:texts => texts})
+      raise MsTranslate::Api::HTTPMethodNotAllowed
     end
 
     ##

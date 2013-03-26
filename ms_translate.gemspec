@@ -8,6 +8,7 @@ Gem::Specification.new do |gem|
   gem.homepage      = "http://www.waydotnet.com"
 
   gem.add_dependency('httparty')
+  gem.add_dependency('active_support')
 
   gem.add_development_dependency 'webmock'
   gem.add_development_dependency 'vcr'

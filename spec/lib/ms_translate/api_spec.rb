@@ -47,14 +47,12 @@ describe MsTranslate::Api do
 
     it "load list language available with appId code" do
       MsTranslate::Api.appId.must_equal @api_real
-      MsTranslate::Api.get('GetLanguagesForTranslate', :query => {
-                               :appId => MsTranslate::Api.appId
-                           })
+      MsTranslate::Api.get('GetLanguagesForTranslate', :query => {:appId => MsTranslate::Api.appId })
     end
+
     it 'translate Ciao Mondo! from en to it' do
       translate = MsTranslate::Api.translate('Hello World!', {:from => :en, :to => :it })
       translate.must_equal 'Salve, mondo!'
-
     end
 
     it 'translate Ciao Mondo! from it to fr' do
@@ -70,7 +68,7 @@ describe MsTranslate::Api do
     it 'must have a list language available' do
       MsTranslate::Api.get_languages_for_translate
       MsTranslate::Api.get_languages_for_translate.must_be_instance_of Array
-      MsTranslate::Api.get_languages_for_translate.must_equal  ["ar", "bg", "ca", "zh-CHS", "zh-CHT", "cs", "da", "nl", "en", "et", "fi", "fr", "de", "el", "ht", "he", "hi", "mww", "hu", "id", "it", "ja", "ko", "lv", "lt", "no", "pl", "pt", "ro", "ru", "sk", "sl", "es", "sv", "th", "tr", "uk", "vi"]
+      MsTranslate::Api.get_languages_for_translate.must_equal ["ar", "bg", "ca", "zh-CHS", "zh-CHT", "cs", "da", "nl", "en", "et", "fi", "fr", "de", "el", "ht", "he", "hi", "mww", "hu", "id", "it", "ja", "ko", "lv", "lt", "ms", "no", "fa", "pl", "pt", "ro", "ru", "sk", "sl", "es", "sv", "th", "tr", "uk", "ur", "vi"]
     end
 
     it 'translate Hello World! with invalid language' do
@@ -100,8 +98,7 @@ describe MsTranslate::Api do
      end
 
     it 'Get  a list of the languages supported by the Translator Service *' do
-      lambda { MsTranslate::Api.get_language_names(:it ) }.must_raise MsTranslate::Api::HTTPMethodNotAllowed
-      MsTranslate::Api.get_language_names(:it, true).must_include 'Italiano'
+      lambda { MsTranslate::Api.get_language_names(:it) }.must_raise MsTranslate::Api::HTTPMethodNotAllowed
     end
 
     it 'Get a list of the language codes supported by the Translator Service for speech synthesis.' do
@@ -134,7 +131,7 @@ describe MsTranslate::Api do
     it 'Get an array of sentence lengths for each sentence of the given text' do
       MsTranslate::Api.break_sentences('Hello World!', 'en').must_equal '12'
       MsTranslate::Api.break_sentences('Ciao Mondo! Visto che bella giornata?', 'it').must_equal ['12', '25']
-
     end
+
   end
 end
